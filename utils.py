@@ -23,18 +23,19 @@ def count_attacks(filename):
 			if flag == True:
 				try:
 					attack_year = int(row[keys['iyear']])
-					if attack_year not in attacks_list:
-						attacks_list[attack_year] = 0
+					if int(row[keys['doubtterr']]) == 0:
+						if attack_year not in attacks_list:
+							attacks_list[attack_year] = 0
 
-					else:
-						attacks_list[attack_year] += 1
+						else:
+							attacks_list[attack_year] += 1
 				except Exception, e:
 					print e
 					skipped += 1
 			else:
 				counter = 0
 				for element in row:
-					print element
+					# print element
 					keys[element] = counter
 					counter += 1
 				flag = True
@@ -56,39 +57,40 @@ def count_major_attacks(filename):
 
 				try:
 					attack_year = int(row[keys['iyear']])
-					if attack_year not in attacks_list:
-						attacks_list[attack_year] = {}
-						kills = 0
-						wounds = 0
-						try:
-							kills = float(row[keys['nkill']])
-						except:
-							pass
-						try:
-							wounds = float(row[keys['nwound']])
-						except:
-							pass
+					if int(row[keys['doubtterr']]) == 0:
+						if attack_year not in attacks_list:
+							attacks_list[attack_year] = {}
+							kills = 0
+							wounds = 0
+							try:
+								kills = float(row[keys['nkill']])
+							except:
+								pass
+							try:
+								wounds = float(row[keys['nwound']])
+							except:
+								pass
 
-						attacks_list[attack_year]['impact'] = kills + wounds
-						attacks_list[attack_year]['summary'] = row[keys['summary']]
-						attacks_list[attack_year]['country'] = row[keys['country_txt']]
-
-
-					else:
-						kills = 0
-						wounds = 0
-						try:
-							kills = float(row[keys['nkill']])
-						except:
-							pass
-						try:
-							wounds = float(row[keys['nwound']])
-						except:
-							pass
-						if attacks_list[attack_year]['impact'] < (kills + wounds):
 							attacks_list[attack_year]['impact'] = kills + wounds
 							attacks_list[attack_year]['summary'] = row[keys['summary']]
 							attacks_list[attack_year]['country'] = row[keys['country_txt']]
+
+
+						else:
+							kills = 0
+							wounds = 0
+							try:
+								kills = float(row[keys['nkill']])
+							except:
+								pass
+							try:
+								wounds = float(row[keys['nwound']])
+							except:
+								pass
+							if attacks_list[attack_year]['impact'] < (kills + wounds):
+								attacks_list[attack_year]['impact'] = kills + wounds
+								attacks_list[attack_year]['summary'] = row[keys['summary']]
+								attacks_list[attack_year]['country'] = row[keys['country_txt']]
 				
 				except Exception, e:
 					# print e
@@ -110,7 +112,13 @@ def draw_distribution(dictionary, title, x_label, y_label):
 
 	x = [d for d in dictionary]
 	x.sort()
-	y = [dictionary[d]['impact'] for d in x]
+	y = []
+	for d in x:
+		if dictionary[d]['impact'] > 600:
+			y.append(dictionary[d]['impact'])
+		else:
+			y.append(0)
+	# y = [dictionary[d]['impact'] if for d in x]
 
 	plt.title(title)
 	plt.ylabel(x_label)
